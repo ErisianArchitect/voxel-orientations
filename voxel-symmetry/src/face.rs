@@ -20,19 +20,19 @@ use Face::*;
 /// A padded Cayley table.
 #[repr(C, align(8))]
 #[derive(Clone, Copy)]
-struct FaceCayley<T: Copy>([T; 6]);
+pub(crate) struct FaceCayley<T: Copy>([T; 6]);
 
 impl<T: Copy> FaceCayley<T> {
     #[must_use]
     #[inline(always)]
-    const fn get(self, item: Face) -> T {
+    pub const fn get(self, item: Face) -> T {
         self.0[item as usize]
     }
 }
 
 impl FaceCayley<Face> {
     #[must_use]
-    const fn invert(self) -> Self {
+    pub const fn invert(self) -> Self {
         Self([
             self.0[0].invert(),
             self.0[1].invert(),
@@ -44,7 +44,7 @@ impl FaceCayley<Face> {
     }
 }
 
-const fn face_cayley<T: Copy>(
+pub(crate) const fn face_cayley<T: Copy>(
     neg_x: T,
     neg_y: T,
     neg_z: T,
@@ -73,7 +73,7 @@ const fn face_cayley<T: Copy>(
 
 /// The
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
-enum AngleDirection {
+pub enum AngleDirection {
     ///  Clockwise
     CW = 0,
     /// Counter-clockwise
@@ -113,7 +113,7 @@ impl Face {
     // --- Configuration Constants
     /// The angle direction determines which direction that
     /// angles increase, whether clockwise or counter-clockwise.
-    const ANGLE_DIRECTION: AngleDirection = AngleDirection::CCW;
+    pub(crate) const ANGLE_DIRECTION: AngleDirection = AngleDirection::CCW;
     
     // --- CAYLEY TABLES ---
     
@@ -137,10 +137,10 @@ impl Face {
     // these tables if if you want to change the orientation of
     // faces.
     //                                   Order: NegX, NegY, NegZ, PosX, PosY, PosZ | (The order determines each face's associated element)
-    const UP:    FaceCayley<Face> = face_cayley(PosY, PosZ, PosY, PosY, NegZ, PosY);
-    const LEFT:  FaceCayley<Face> = face_cayley(NegZ, NegX, PosX, PosZ, NegX, NegX);
-    const DOWN:  FaceCayley<Face> = Self::UP.invert();
-    const RIGHT: FaceCayley<Face> = Self::LEFT.invert();
+    pub(crate) const UP:    FaceCayley<Face> = face_cayley(PosY, PosZ, PosY, PosY, NegZ, PosY);
+    pub(crate) const LEFT:  FaceCayley<Face> = face_cayley(NegZ, NegX, PosX, PosZ, NegX, NegX);
+    pub(crate) const DOWN:  FaceCayley<Face> = Self::UP.invert();
+    pub(crate) const RIGHT: FaceCayley<Face> = Self::LEFT.invert();
 
     // Within this implementation of voxel orientations, we are
     // going to use counter-clockwise angles. This means that at
@@ -149,7 +149,7 @@ impl Face {
     // `LEFT`. If you would like to use
     // counter-clockwise angles, you can change
     // Self::ANGLE_DIRECTION to AngleDirection::CW.
-    const UP_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
+    pub(crate) const UP_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
         Self::ANGLE_DIRECTION,
         Self::UP,
         Self::LEFT,
@@ -157,7 +157,7 @@ impl Face {
         Self::RIGHT,
     );
 
-    const LEFT_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
+    pub(crate) const LEFT_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
         Self::ANGLE_DIRECTION,
         Self::LEFT,
         Self::DOWN,
@@ -165,7 +165,7 @@ impl Face {
         Self::UP,
     );
 
-    const DOWN_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
+    pub(crate) const DOWN_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
         Self::ANGLE_DIRECTION,
         Self::DOWN,
         Self::RIGHT,
@@ -173,7 +173,7 @@ impl Face {
         Self::LEFT,
     );
 
-    const RIGHT_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
+    pub(crate) const RIGHT_AT_ANGLE: [FaceCayley<Face>; 4] = face_at_angle(
         Self::ANGLE_DIRECTION,
         Self::RIGHT,
         Self::UP,
@@ -183,7 +183,7 @@ impl Face {
 
 
     //                                    Order: NegX, NegY, NegZ, PosX, PosY, PosZ
-    const INVERT: FaceCayley<Face> = face_cayley(PosX, PosY, PosZ, NegX, NegY, NegZ);
+    pub(crate) const INVERT: FaceCayley<Face> = face_cayley(PosX, PosY, PosZ, NegX, NegY, NegZ);
 
     // --- CONSTRUCTORS ---
 
